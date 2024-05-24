@@ -13,32 +13,32 @@ is_package_manager_dnf() {
 
 install_with_apk() {
     local packages="$*"
-    apk add "$packages"
+    apk add $packages
 }
 
 install_with_apt() {
     local packages="$*"
     [[ "$APT_UPDATED" == false ]] && apt update && APT_UPDATED=true
-    apt install "$packages" -y
+    apt install $packages -y
 }
 
 install_with_dnf() {
     local packages="$*"
     local dnf_cli; dnf_cli="$(command -v dnf || command -v microdnf)"
-    "$dnf_cli" install "$packages" -y
+    "$dnf_cli" install $packages -y
 }
 
 install_survival_tools_process() {
     is_package_manager_apk \
-        && install_with_apk "procps" \
+        && install_with_apk procps lsof \
         && return
 
     is_package_manager_apt \
-        && install_with_apt "procps" \
+        && install_with_apt procps lsof \
         && return
 
     is_package_manager_dnf \
-        && install_with_dnf "procps" \
+        && install_with_dnf procps lsof \
         && return
 }
 
