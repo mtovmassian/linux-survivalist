@@ -1,3 +1,3 @@
 # linux-survival-kit
 
-Install survival tools for Linux/Docker environments
+Survive in Linux/Docker environments by installing essential tools.

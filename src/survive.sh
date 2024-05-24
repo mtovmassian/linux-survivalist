@@ -57,8 +57,8 @@ usage() {
 Usage: ./$script_name [OPTIONS]
 
 Options:
-    -h                        Help
-    -p                        Install process management tools
+    -h, --help              Help
+    -p, --process           Survive by installing process management tools
 
 Example:
     ./$script_name
@@ -68,11 +68,18 @@ EOF
 main() {
     local survival_enabled_all=true
     local survival_enabled_process=false
-    while getopts ":hp" option; do 
+    while getopts ":-:hp" option; do 
         survival_enabled_all=false
         case "$option" in 
             h) usage && exit 0 ;;
             p) survival_enabled_process=true;;
+            -)
+                case "$OPTARG" in
+                    help) usage && exit 0 ;;
+                    process) survival_enabled_process=true;;
+                    *) usage && exit 1 ;;
+                esac
+                ;;
             *) usage && exit 1 ;;
         esac
     done
