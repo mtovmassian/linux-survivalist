@@ -2,26 +2,43 @@
 
 set -euo pipefail
 
-PACKAGE_LIST_UPDATED=false
+APT_UPDATED=false
 
-is_package_manager_available() {
-    local package_manager="$1"
-    command -v "$package_manager" &> /dev/null 
+is_package_manager_available() { command -v "$1" &> /dev/null; }
+is_package_manager_apk() { is_package_manager_available "apk" ;}
+is_package_manager_apt() { is_package_manager_available "apt" ;}
+is_package_manager_dnf() { 
+    is_package_manager_available "dnf" || is_package_manager_available "microdnf"
 }
 
-is_package_manager_apt() {
-    is_package_manager_available "apt"
-}
-
-install_packages_with_apt() {
+install_with_apk() {
     local packages="$*"
-    [[ "$PACKAGE_LIST_UPDATED" == false ]] && apt update && PACKAGE_LIST_UPDATED=true
-    "$(command -v apt)" install "$packages" -y
+    apk add "$packages"
+}
+
+install_with_apt() {
+    local packages="$*"
+    [[ "$APT_UPDATED" == false ]] && apt update && APT_UPDATED=true
+    apt install "$packages" -y
+}
+
+install_with_dnf() {
+    local packages="$*"
+    local dnf_cli; dnf_cli="$(command -v dnf || command -v microdnf)"
+    "$dnf_cli" install "$packages" -y
 }
 
 install_survival_tools_process() {
+    is_package_manager_apk \
+        && install_with_apk "procps" \
+        && return
+
     is_package_manager_apt \
-        && install_packages_with_apt "procps" \
+        && install_with_apt "procps" \
+        && return
+
+    is_package_manager_dnf \
+        && install_with_dnf "procps" \
         && return
 }
 
@@ -59,7 +76,7 @@ main() {
             *) usage && exit 1 ;;
         esac
     done
-    shift $(("$OPTIND" - 1))
+    shift $(( "$OPTIND" - 1))
 
     log_install_survival_tools "all" "$survival_enabled_all"
 
