@@ -3,6 +3,7 @@
 set -euo pipefail
 
 BOOTSTRAPPED=false
+STDOUT_REDIRECT="/dev/stdout"
 
 apk_cli() { command -v apk; }
 apt_cli() { command -v apt; }
@@ -38,7 +39,7 @@ install_with_apt() {
     [[ "$BOOTSTRAPPED" == false ]] && bootstrap_apt
     local packages="$*"
     "$(apt_cli)" install $packages -y
-}
+} > "$STDOUT_REDIRECT" 2>&1
 
 install_with_dnf() {
     [[ -z "$(dnf_cli)" ]] && return 1
@@ -77,6 +78,7 @@ Survive in Linux/Docker environments by installing essential tools.
 
 Options:
     -h, --help              Help
+    -q, --quiet, --silent   Survive in silence without printing package manager logs
     -p, --process           Survive by installing process management tools
     -d, --disk              Survive by installing disk management tools
 
@@ -90,15 +92,17 @@ main() {
     local is_enabled_survive_process=false
     local is_enabled_survive_disk=false
 
-    while getopts ":-:hpd" option; do 
+    while getopts ":-:hqpd" option; do 
         is_enabled_survive_all=false
         case "$option" in 
             h) usage && exit 0 ;;
+            q) STDOUT_REDIRECT="/dev/null";;
             p) is_enabled_survive_process=true;;
             d) is_enabled_survive_disk=true;;
             -)
                 case "$OPTARG" in
                     help) usage && exit 0 ;;
+                    quiet|silent) STDOUT_REDIRECT="/dev/null";;
                     process) is_enabled_survive_process=true;;
                     disk) is_enabled_survive_disk=true;;
                     *) usage && exit 1 ;;
