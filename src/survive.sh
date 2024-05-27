@@ -86,21 +86,21 @@ EOF
 }
 
 main() {
-    local survival_enabled_all=true
-    local survival_enabled_process=false
-    local survival_enabled_disk=false
+    local is_enabled_survive_all=true
+    local is_enabled_survive_process=false
+    local is_enabled_survive_disk=false
 
     while getopts ":-:hpd" option; do 
-        survival_enabled_all=false
+        is_enabled_survive_all=false
         case "$option" in 
             h) usage && exit 0 ;;
-            p) survival_enabled_process=true;;
-            d) survival_enabled_disk=true;;
+            p) is_enabled_survive_process=true;;
+            d) is_enabled_survive_disk=true;;
             -)
                 case "$OPTARG" in
                     help) usage && exit 0 ;;
-                    process) survival_enabled_process=true;;
-                    disk) survival_enabled_disk=true;;
+                    process) is_enabled_survive_process=true;;
+                    disk) is_enabled_survive_disk=true;;
                     *) usage && exit 1 ;;
                 esac
                 ;;
@@ -109,15 +109,15 @@ main() {
     done
     shift $(( "$OPTIND" - 1))
 
-    [[ "$survival_enabled_all" == true ]] \
-        && survival_enabled_process=true \
-        && survival_enabled_disk=true
+    [[ "$is_enabled_survive_all" == true ]] \
+        && is_enabled_survive_process=true \
+        && is_enabled_survive_disk=true
 
-    log_install_survival_tools "process" "$survival_enabled_process"
-    [[ "$survival_enabled_process" == true ]] && install_survival_tools_process
+    log_install_survival_tools "process" "$is_enabled_survive_process"
+    [[ "$is_enabled_survive_process" == true ]] && install_survival_tools_process
     
-    log_install_survival_tools "disk" "$survival_enabled_disk"
-    [[ "$survival_enabled_disk" == true ]] && install_survival_tools_disk
+    log_install_survival_tools "disk" "$is_enabled_survive_disk"
+    [[ "$is_enabled_survive_disk" == true ]] && install_survival_tools_disk
     
 }
 
