@@ -5,6 +5,10 @@ set -euo pipefail
 BOOTSTRAPPED=false
 STDOUT_REDIRECT="/dev/stdout"
 
+declare -A SURVIVAL_OPTIONS
+SURVIVAL_OPTIONS[process]=false
+SURVIVAL_OPTIONS[disk]=false
+
 apk_cli() { command -v apk; }
 apt_cli() { command -v apt; }
 dnf_cli() { command -v dnf || command -v microdnf; }
@@ -69,6 +73,15 @@ log_install_survival_tools() {
     printf "Survive by installing %s management tools: %b\n" "$survival_kind" "$survival_enabled_text"
 }
 
+enable_all_survival_options_if_none() {
+    for survival_option in "${!SURVIVAL_OPTIONS[@]}"; do
+        [[ "${SURVIVAL_OPTIONS[$survival_option]}" == true ]] && return 0
+    done
+    for survival_option in "${!SURVIVAL_OPTIONS[@]}"; do
+        SURVIVAL_OPTIONS["$survival_option"]=true
+    done
+}
+
 usage() {
     script_name="$(basename "$0")"
     cat << EOF
@@ -88,23 +101,19 @@ EOF
 }
 
 main() {
-    local is_enabled_survive_all=true
-    local is_enabled_survive_process=false
-    local is_enabled_survive_disk=false
 
     while getopts ":-:hqpd" option; do 
-        is_enabled_survive_all=false
         case "$option" in 
             h) usage && exit 0 ;;
             q) STDOUT_REDIRECT="/dev/null";;
-            p) is_enabled_survive_process=true;;
-            d) is_enabled_survive_disk=true;;
+            p) SURVIVAL_OPTIONS[process]=true;;
+            d) SURVIVAL_OPTIONS[disk]=true;;
             -)
                 case "$OPTARG" in
                     help) usage && exit 0 ;;
                     quiet|silent) STDOUT_REDIRECT="/dev/null";;
-                    process) is_enabled_survive_process=true;;
-                    disk) is_enabled_survive_disk=true;;
+                    process) SURVIVAL_OPTIONS[process]=true;;
+                    disk) SURVIVAL_OPTIONS[disk]=true;;
                     *) usage && exit 1 ;;
                 esac
                 ;;
@@ -113,15 +122,13 @@ main() {
     done
     shift $(( "$OPTIND" - 1))
 
-    [[ "$is_enabled_survive_all" == true ]] \
-        && is_enabled_survive_process=true \
-        && is_enabled_survive_disk=true
+    enable_all_survival_options_if_none
 
-    log_install_survival_tools "process" "$is_enabled_survive_process"
-    [[ "$is_enabled_survive_process" == true ]] && install_survival_tools_process
-    
-    log_install_survival_tools "disk" "$is_enabled_survive_disk"
-    [[ "$is_enabled_survive_disk" == true ]] && install_survival_tools_disk
+    log_install_survival_tools "process" "${SURVIVAL_OPTIONS[process]}"
+    [[ "${SURVIVAL_OPTIONS[process]}" == true ]] && install_survival_tools_process
+   
+   log_install_survival_tools "disk" "${SURVIVAL_OPTIONS[disk]}"
+    [[ "${SURVIVAL_OPTIONS[disk]}" == true ]] && install_survival_tools_disk
     
 }
 
