@@ -8,6 +8,7 @@ STDOUT_REDIRECT="/dev/stdout"
 declare -A SURVIVAL_OPTIONS
 SURVIVAL_OPTIONS[process]=false
 SURVIVAL_OPTIONS[disk]=false
+SURVIVAL_OPTIONS[text]=false
 
 apk_cli() { command -v apk; }
 apt_cli() { command -v apt; }
@@ -65,21 +66,26 @@ install_survival_tools_disk() {
 }
 
 log_install_survival_tools() {
-    local survival_kind="$1"
-    local survival_enabled="$2"
-    local survival_enabled_text="\e[1;32m$survival_enabled\e[0m"
-    [[ "$survival_enabled" == false ]] && survival_enabled_text="\e[1;34m$survival_enabled\e[0m"
+    local survival_option="$1"
+    local survival_option_enabled="\e[1;34mfalse\e[0m"
+    is_enabled_survival_option "$survival_option" && survival_option_enabled="\e[1;32mtrue\e[0m"
     
-    printf "Survive by installing %s management tools: %b\n" "$survival_kind" "$survival_enabled_text"
+    printf "Survive by installing management tools for %-7s: %b\n" "$survival_option" "$survival_option_enabled"
+
 }
 
 enable_all_survival_options_if_none() {
     for survival_option in "${!SURVIVAL_OPTIONS[@]}"; do
-        [[ "${SURVIVAL_OPTIONS[$survival_option]}" == true ]] && return 0
+        is_enabled_survival_option "$survival_option" && return 0
     done
     for survival_option in "${!SURVIVAL_OPTIONS[@]}"; do
         SURVIVAL_OPTIONS["$survival_option"]=true
     done
+}
+
+is_enabled_survival_option() {
+    local survival_option="$1"
+    [[ "${SURVIVAL_OPTIONS[$survival_option]}" == true ]]
 }
 
 usage() {
@@ -92,8 +98,9 @@ Survive in Linux/Docker environments by installing essential tools.
 Options:
     -h, --help              Help
     -q, --quiet, --silent   Survive in silence without printing package manager logs
-    -p, --process           Survive by installing process management tools
-    -d, --disk              Survive by installing disk management tools
+    -p, --process           Survive by installing management tools for process
+    -d, --disk              Survive by installing management tools for disk
+    -t, --text              Survive by installing management tools for text
 
 Example:
     ./$script_name
@@ -102,18 +109,20 @@ EOF
 
 main() {
 
-    while getopts ":-:hqpd" option; do 
+    while getopts ":-:hqpdt" option; do 
         case "$option" in 
             h) usage && exit 0 ;;
             q) STDOUT_REDIRECT="/dev/null";;
             p) SURVIVAL_OPTIONS[process]=true;;
             d) SURVIVAL_OPTIONS[disk]=true;;
+            t) SURVIVAL_OPTIONS[text]=true;;
             -)
                 case "$OPTARG" in
                     help) usage && exit 0 ;;
                     quiet|silent) STDOUT_REDIRECT="/dev/null";;
                     process) SURVIVAL_OPTIONS[process]=true;;
                     disk) SURVIVAL_OPTIONS[disk]=true;;
+                    text) SURVIVAL_OPTIONS[text]=true;;
                     *) usage && exit 1 ;;
                 esac
                 ;;
@@ -124,11 +133,14 @@ main() {
 
     enable_all_survival_options_if_none
 
-    log_install_survival_tools "process" "${SURVIVAL_OPTIONS[process]}"
-    [[ "${SURVIVAL_OPTIONS[process]}" == true ]] && install_survival_tools_process
+    log_install_survival_tools "process"
+    is_enabled_survival_option "process" && install_survival_tools_process
    
-   log_install_survival_tools "disk" "${SURVIVAL_OPTIONS[disk]}"
-    [[ "${SURVIVAL_OPTIONS[disk]}" == true ]] && install_survival_tools_disk
+    log_install_survival_tools "disk"
+    is_enabled_survival_option "disk" && install_survival_tools_disk
+    
+    log_install_survival_tools "text"
+    is_enabled_survival_option "text" && install_survival_tools_text
     
 }
 
