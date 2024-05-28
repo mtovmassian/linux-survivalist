@@ -37,7 +37,7 @@ install_with_apk() {
     [[ "$BOOTSTRAPPED" == false ]] && bootstrap_apk
     local packages="$*"
     "$(apk_cli)" add $packages
-}
+} > "$STDOUT_REDIRECT" 2>&1
 
 install_with_apt() {
     [[ -z "$(apt_cli)" ]] && return 1
@@ -51,7 +51,7 @@ install_with_dnf() {
     [[ "$BOOTSTRAPPED" == false ]] && bootstrap_dnf
     local packages="$*"
     "$(dnf_cli)" install $packages -y
-}
+} > "$STDOUT_REDIRECT" 2>&1
 
 install_survival_tools_process() {
     install_with_apk procps lsof \
@@ -65,10 +65,17 @@ install_survival_tools_disk() {
         || { install_with_dnf epel-release && install_with_dnf ncdu; }
 }
 
+install_survival_tools_text() {
+    install_with_apk less vim jq \
+        || install_with_apt less vim jq \
+        || install_with_dnf less vim jq
+}
+
+
 log_install_survival_tools() {
     local survival_option="$1"
-    local survival_option_enabled="\e[1;34mfalse\e[0m"
-    is_enabled_survival_option "$survival_option" && survival_option_enabled="\e[1;32mtrue\e[0m"
+    local survival_option_enabled="\e[1;34mdisabled\e[0m"
+    is_enabled_survival_option "$survival_option" && survival_option_enabled="\e[1;32menabled\e[0m"
     
     printf "Survive by installing management tools for %-7s: %b\n" "$survival_option" "$survival_option_enabled"
 
