@@ -1,5 +1,7 @@
 # linux-survival-kit
 
+![](static/linux-survival-kit-mr-robot.png)
+
 Survive in Linux/Docker environments by installing essential tools.
 
 ## Prerequisites
