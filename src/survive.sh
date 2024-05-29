@@ -14,8 +14,6 @@ apk_cli() { command -v apk; }
 apt_cli() { command -v apt; }
 dnf_cli() { command -v dnf || command -v microdnf; }
 
-is_package_manager_available() { command -v "$1" &> /dev/null; }
-
 bootstrap_apk() {
     apk add coreutils
     BOOTSTRAPPED=true

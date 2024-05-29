@@ -12,19 +12,19 @@ apk add curl
 ```bash
 apt update && apt install curl -y
 ```
-- On Debian like environment
+- On RHEL like environment
 ```bash
-apt update && apt install curl -y
+$(command -v dnf || command -v microdnf) install curl -y
 ```
 
 ## Usage
-- Survive by installing management tools for specific purpose (e.g. *process* and *text*)
-```bash
-curl -s -L https://tovmachine.com/survive.sh | bash -s -- --process --text
-```
 - Survive by installing management tools for all purpose
 ```bash
 curl -s -L https://tovmachine.com/survive.sh | bash
+```
+- Survive by installing management tools for specific purpose (e.g. *process* and *text*)
+```bash
+curl -s -L https://tovmachine.com/survive.sh | bash -s -- --process --text
 ```
 - Survive in silence
 ```bash
