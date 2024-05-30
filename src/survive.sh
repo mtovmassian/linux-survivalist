@@ -8,6 +8,7 @@ STDOUT_REDIRECT="/dev/stdout"
 declare -A SURVIVAL_OPTIONS
 SURVIVAL_OPTIONS[process]=false
 SURVIVAL_OPTIONS[disk]=false
+SURVIVAL_OPTIONS[network]=false
 SURVIVAL_OPTIONS[text]=false
 
 apk_cli() { command -v apk; }
@@ -26,7 +27,7 @@ bootstrap_apt() {
 }
 
 bootstrap_dnf() {
-    "$(dnf_cli)" install coreutils-single -y
+    "$(dnf_cli)" install coreutils-single epel-release -y
     BOOTSTRAPPED=true
 }
 
@@ -52,23 +53,28 @@ install_with_dnf() {
 } > "$STDOUT_REDIRECT" 2>&1
 
 install_survival_tools_process() {
-    install_with_apk procps lsof \
-        || install_with_apt procps lsof \
-        || install_with_dnf procps lsof
+    install_with_apk procps lsof htop strace \
+        || install_with_apt procps lsof htop strace \
+        || install_with_dnf procps lsof htop strace
 }
 
 install_survival_tools_disk() {
     install_with_apk ncdu \
         || install_with_apt ncdu \
-        || { install_with_dnf epel-release && install_with_dnf ncdu; }
+        || install_with_dnf ncdu
+}
+
+install_survival_tools_network() {
+    install_with_apk iproute2 bind-tools mtr \
+        || install_with_apt iproute2 dnsutils mtr \
+        || install_with_dnf iproute dnsutils mtr
 }
 
 install_survival_tools_text() {
-    install_with_apk less vim jq \
-        || install_with_apt less vim jq \
-        || install_with_dnf less vim jq
+    install_with_apk vim ripgrep less jq \
+        || install_with_apt vim ripgrep less jq \
+        || install_with_dnf vim ripgrep less jq
 }
-
 
 log_install_survival_tools() {
     local survival_option="$1"
@@ -105,6 +111,7 @@ Options:
     -q, --quiet, --silent   Survive in silence without printing package manager logs
     -p, --process           Survive by installing management tools for process
     -d, --disk              Survive by installing management tools for disk
+    -d, --network           Survive by installing management tools for network
     -t, --text              Survive by installing management tools for text
 
 Example:
@@ -114,12 +121,13 @@ EOF
 
 main() {
 
-    while getopts ":-:hqpdt" option; do 
+    while getopts ":-:hqpdnt" option; do 
         case "$option" in 
             h) usage && exit 0 ;;
             q) STDOUT_REDIRECT="/dev/null";;
             p) SURVIVAL_OPTIONS[process]=true;;
             d) SURVIVAL_OPTIONS[disk]=true;;
+            n) SURVIVAL_OPTIONS[network]=true;;
             t) SURVIVAL_OPTIONS[text]=true;;
             -)
                 case "$OPTARG" in
@@ -127,6 +135,7 @@ main() {
                     quiet|silent) STDOUT_REDIRECT="/dev/null";;
                     process) SURVIVAL_OPTIONS[process]=true;;
                     disk) SURVIVAL_OPTIONS[disk]=true;;
+                    network) SURVIVAL_OPTIONS[network]=true;;
                     text) SURVIVAL_OPTIONS[text]=true;;
                     *) usage && exit 1 ;;
                 esac
@@ -143,6 +152,9 @@ main() {
    
     log_install_survival_tools "disk"
     is_enabled_survival_option "disk" && install_survival_tools_disk
+    
+    log_install_survival_tools "network"
+    is_enabled_survival_option "network" && install_survival_tools_network
     
     log_install_survival_tools "text"
     is_enabled_survival_option "text" && install_survival_tools_text
