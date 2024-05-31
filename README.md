@@ -5,16 +5,18 @@
 Survive in Linux/Docker environments by installing essential tools.
 
 ## Prerequisites
-### Install curl
-- On Alpine Linux like environment
+### On Alpine Linux like environment
+Install *bash* and *curl*:
 ```bash
-apk add curl
+apk add bash curl
 ```
-- On Debian like environment
+### On Debian like environment
+Install *curl*:
 ```bash
 apt update && apt install curl -y
 ```
-- On RHEL like environment
+### On RHEL like environment
+Install *curl*:
 ```bash
 $(command -v dnf || command -v microdnf) install curl -y
 ```
