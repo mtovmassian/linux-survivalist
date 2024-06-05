@@ -11,9 +11,9 @@ BOOTSTRAPPED=false
 STDOUT_REDIRECT="/dev/stdout"
 
 declare -A SURVIVAL_OPTIONS
-SURVIVAL_OPTIONS[process]=false
 SURVIVAL_OPTIONS[disk]=false
 SURVIVAL_OPTIONS[network]=false
+SURVIVAL_OPTIONS[process]=false
 SURVIVAL_OPTIONS[text]=false
 
 apk_cli() { command -v apk; }
@@ -112,12 +112,12 @@ Usage: ./$script_name [OPTIONS]
 Survive in Linux/Docker environments by installing essential tools.
 
 Options:
+    -d, --disk              Survive by installing tools for disk
     -h, --help              Help
+    -n, --network           Survive by installing tools for network
+    -p, --process           Survive by installing tools for process
     -q, --quiet, --silent   Survive in silence without printing package manager logs
-    -p, --process           Survive by installing management tools for process
-    -d, --disk              Survive by installing management tools for disk
-    -d, --network           Survive by installing management tools for network
-    -t, --text              Survive by installing management tools for text
+    -t, --text              Survive by installing tools for text
 
 Example:
     ./$script_name --quiet --process --text
@@ -126,21 +126,21 @@ EOF
 
 main() {
 
-    while getopts ":-:hqpdnt" option; do 
+    while getopts ":-:dhnpqt" option; do 
         case "$option" in 
-            h) usage && exit 0 ;;
-            q) STDOUT_REDIRECT="/dev/null";;
-            p) SURVIVAL_OPTIONS[process]=true;;
             d) SURVIVAL_OPTIONS[disk]=true;;
+            h) usage && exit 0 ;;
             n) SURVIVAL_OPTIONS[network]=true;;
+            p) SURVIVAL_OPTIONS[process]=true;;
+            q) STDOUT_REDIRECT="/dev/null";;
             t) SURVIVAL_OPTIONS[text]=true;;
             -)
                 case "$OPTARG" in
+                    disk) SURVIVAL_OPTIONS[disk]=true;;
                     help) usage && exit 0 ;;
+                    network) SURVIVAL_OPTIONS[network]=true;;
                     quiet|silent) STDOUT_REDIRECT="/dev/null";;
                     process) SURVIVAL_OPTIONS[process]=true;;
-                    disk) SURVIVAL_OPTIONS[disk]=true;;
-                    network) SURVIVAL_OPTIONS[network]=true;;
                     text) SURVIVAL_OPTIONS[text]=true;;
                     *) usage && exit 1 ;;
                 esac
@@ -152,15 +152,15 @@ main() {
 
     enable_all_survival_options_if_none
 
-    log_install_survival_tools "process"
-    is_enabled_survival_option "process" && install_survival_tools_process
-   
     log_install_survival_tools "disk"
     is_enabled_survival_option "disk" && install_survival_tools_disk
     
     log_install_survival_tools "network"
     is_enabled_survival_option "network" && install_survival_tools_network
     
+    log_install_survival_tools "process"
+    is_enabled_survival_option "process" && install_survival_tools_process
+   
     log_install_survival_tools "text"
     is_enabled_survival_option "text" && install_survival_tools_text
     
