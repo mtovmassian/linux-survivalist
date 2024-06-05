@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# Name          :survive.sh
+# Description   :Survive in Linux/Docker environments by installing essential tools.
+# Author        :Martin Tovmassian
+# Email         :martin.tovmassian@protonmail.com
+# Usage         :./survive.sh --help
 
 set -euo pipefail
 
@@ -115,7 +120,7 @@ Options:
     -t, --text              Survive by installing management tools for text
 
 Example:
-    ./$script_name
+    ./$script_name --quiet --process --text
 EOF
 }
 
