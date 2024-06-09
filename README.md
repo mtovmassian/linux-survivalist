@@ -22,15 +22,15 @@ $(command -v dnf || command -v microdnf) install curl -y
 ```
 
 ## Usage
-- Survive by installing management tools for all purpose
+- Survive by installing tools for all purpose
 ```bash
-curl -s -L https://tovmachine.com/survive.sh | bash
+curl -s -L https://bit.ly/srvv | bash
 ```
-- Survive by installing management tools for specific purpose (e.g. *process* and *text*)
+- Survive by installing tools for specific purpose (e.g. *process* and *text*)
 ```bash
-curl -s -L https://tovmachine.com/survive.sh | bash -s -- --process --text
+curl -s -L https://bit.ly/srvv | bash -s -- --process --text
 ```
 - Survive in silence
 ```bash
-curl -s -L https://tovmachine.com/survive.sh | bash -s -- --quiet
+curl -s -L https://bit.ly/srvv | bash -s -- --quiet
 ```
