@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-SCRIPT_DIR=$(readlink -f "${0%/*}")
+SCRIPT_DIR="$(readlink -f "$0" | xargs dirname)"
 readonly SCRIPT_DIR
 
 main() {
