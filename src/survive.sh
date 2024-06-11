@@ -15,6 +15,7 @@ SURVIVAL_OPTIONS[disk]=false
 SURVIVAL_OPTIONS[network]=false
 SURVIVAL_OPTIONS[process]=false
 SURVIVAL_OPTIONS[text]=false
+SURVIVAL_OPTIONS[user]=false
 
 apk_cli() { command -v apk; }
 apt_cli() { command -v apt; }
@@ -81,6 +82,12 @@ install_survival_tools_text() {
         || install_with_dnf vim ripgrep less jq
 }
 
+install_survival_tools_user() {
+    install_with_apk sudo \
+        || install_with_apt sudo \
+        || install_with_dnf sudo
+}
+
 log_install_survival_tools() {
     local survival_option="$1"
     local survival_option_enabled="\e[1;34mdisabled\e[0m"
@@ -118,6 +125,7 @@ Options:
     -p, --process           Survive by installing tools for process
     -q, --quiet, --silent   Survive in silence without printing package manager logs
     -t, --text              Survive by installing tools for text
+    -u, --user              Survive by installing tools for user
 
 Example:
     ./$script_name --quiet --process --text
@@ -126,7 +134,7 @@ EOF
 
 main() {
 
-    while getopts ":-:dhnpqt" option; do 
+    while getopts ":-:dhnpqtu" option; do 
         case "$option" in 
             d) SURVIVAL_OPTIONS[disk]=true;;
             h) usage && exit 0 ;;
@@ -134,6 +142,7 @@ main() {
             p) SURVIVAL_OPTIONS[process]=true;;
             q) STDOUT_REDIRECT="/dev/null";;
             t) SURVIVAL_OPTIONS[text]=true;;
+            u) SURVIVAL_OPTIONS[user]=true;;
             -)
                 case "$OPTARG" in
                     disk) SURVIVAL_OPTIONS[disk]=true;;
@@ -142,6 +151,7 @@ main() {
                     quiet|silent) STDOUT_REDIRECT="/dev/null";;
                     process) SURVIVAL_OPTIONS[process]=true;;
                     text) SURVIVAL_OPTIONS[text]=true;;
+                    user) SURVIVAL_OPTIONS[user]=true;;
                     *) usage && exit 1 ;;
                 esac
                 ;;
@@ -163,6 +173,9 @@ main() {
    
     log_install_survival_tools "text"
     is_enabled_survival_option "text" && install_survival_tools_text
+    
+    log_install_survival_tools "user"
+    is_enabled_survival_option "user" && install_survival_tools_user
     
 }
 
