@@ -1,6 +1,6 @@
-# linux-survival-kit
+# Linux Survivalist
 
-![](static/linux-survival-kit-mr-robot.png)
+![](static/linux-survivalist-mr-robot.png)
 
 Survive in Linux/Docker environments by installing essential tools.
 
@@ -22,15 +22,20 @@ $(command -v dnf || command -v microdnf) install curl -y
 ```
 
 ## Usage
-- Survive by installing tools for all purpose
+Pipe the online `survive.sh` script to bash. Available at: 
+- Full URL: https://raw.githubusercontent.com/mtovmassian/linux-survivalist/main/src/survive.sh 
+- Shorten URL: https://bit.ly/srvv
+
+### Survive by installing tools for all purpose
 ```bash
-curl -s -L https://bit.ly/srvv | bash
+curl -s -L https://raw.githubusercontent.com/mtovmassian/linux-survivalist/main/src/survive.sh | bash
 ```
-- Survive by installing tools for specific purpose (e.g. *process* and *text*)
+### Survive by installing tools for specific purpose
+For example *process* and *text*
 ```bash
-curl -s -L https://bit.ly/srvv | bash -s -- --process --text
+curl -s -L https://raw.githubusercontent.com/mtovmassian/linux-survivalist/main/src/survive.sh | bash -s -- --process --text
 ```
-- Survive in silence
+### Survive in silence
 ```bash
-curl -s -L https://bit.ly/srvv | bash -s -- --quiet
+curl -s -L https://raw.githubusercontent.com/mtovmassian/linux-survivalist/main/src/survive.sh | bash -s -- --quiet
 ```
